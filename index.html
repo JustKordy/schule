@@ -4,31 +4,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Event Calendar</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Inventory Management</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
-<body>
-    <div id="calendar-container" style="display: none;">
-        <h2>Event Calendar</h2>
-        <button onclick="logout()">Logout</button>
-
-        <div id="events-container">
-            <h3>Add New Event</h3>
-            <form id="eventForm">
-                <label for="eventName">Event Name:</label>
-                <input type="text" id="eventName" name="eventName" required>
-
-                <label for="eventDate">Event Date:</label>
-                <input type="date" id="eventDate" name="eventDate" required>
-
-                <button type="button" onclick="addEvent()">Add Event</button>
-            </form>
-
-            <h3>Events</h3>
-            <div id="events-list">
-            </div>
+<body class="bg-gray-100">
+    <div class="flex justify-center items-center h-screen">
+        <div
+            class="bg-white border border-gray-300 w-[500px] overflow-y-auto p-4 flex flex-col justify-center items-center shadow-lg rounded-lg">
+            <table class="w-full text-gray-800">
+                <thead>
+                    <tr>
+                        <th class="text-center uppercase">Name</th>
+                        <th class="text-center uppercase">Price per Item</th>
+                        <th class="text-center uppercase">Quantity in Stock</th>
+                        <th class="text-center uppercase">Action</th>
+                    </tr>
+                </thead>
+                <tbody id="table">
+                </tbody>
+            </table>
+        </div>
+        <div class="flex flex-col gap-2 justify-center items-center p-4 mt-4">
+            <button class="bg-green-500  text-white px-4 py-2 rounded-lg mr-2" onclick="mostExpensive()">Most
+                Expensive</button>
+            <button class="bg-red-500 text-white px-4 py-2 rounded-lg mr-2" onclick="borderAmount()">Below Quantity
+                Threshold</button>
+            <button class="bg-blue-500 text-white px-4 py-2 rounded-lg" onclick="inventoryValue()">Inventory
+                Value</button>
         </div>
     </div>
+    <script>
+        const tableElement = document.getElementById("table");
+        const products = [
+            { name: "Pencil", pricePerItem: 10, quantityInStock: 100 },
+            { name: "Notebook", pricePerItem: 20, quantityInStock: 150 },
+            { name: "Backpack", pricePerItem: 500, quantityInStock: 50 },
+            { name: "Ruler", pricePerItem: 30, quantityInStock: 75 },
+            { name: "Pen", pricePerItem: 40, quantityInStock: 200 },
+            { name: "Calculator", pricePerItem: 200, quantityInStock: 30 },
+            { name: "Paints", pricePerItem: 150, quantityInStock: 80 },
+            { name: "Brushes", pricePerItem: 60, quantityInStock: 120 },
+            { name: "Chair", pricePerItem: 300, quantityInStock: 40 },
+            { name: "World Map", pricePerItem: 180, quantityInStock: 60 }
+        ];
 
-    <script src="script.js"></script>
+        const loadProducts = () => {
+            products.forEach(product => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td class="text-center">${product.name}</td>
+                    <td class="text-center">${product.pricePerItem}</td>
+                    <td class="text-center">${product.quantityInStock}</td>
+                    <td class="text-center">
+                        <button class="bg-blue-500 text-white px-2 py-1 rounded-lg" onclick="updateQuantity(${products.indexOf(product)})">Update Quantity</button>
+                        <button class="bg-red-500 text-white px-2 py-1 rounded-lg ml-2" onclick="updatePrice(${products.indexOf(product)})">Update Price</button>
+                    </td>
+                `;
+                tableElement.appendChild(tr);
+            });
+        }
+
+        const updateQuantity = (index) => {
+            const newQuantity = parseInt(prompt("Enter new quantity:"));
+            if (!isNaN(newQuantity) && newQuantity >= 0) {
+                products[index].quantityInStock = newQuantity;
+                tableElement.innerHTML = "";
+                loadProducts();
+            }
+        }
+
+        const updatePrice = (index) => {
+            const newPrice = parseInt(prompt("Enter new price:"));
+            if (!isNaN(newPrice) && newPrice >= 0) {
+                products[index].pricePerItem = newPrice;
+                tableElement.innerHTML = "";
+                loadProducts();
+            }
+        }
+
+        const mostExpensive = () => {
+            products.sort((a, b) => b.pricePerItem - a.pricePerItem);
+            tableElement.innerHTML = "";
+            loadProducts();
+        }
+
+        const borderAmount = () => {
+            const threshold = parseInt(prompt("Enter quantity threshold:"));
+            if (!isNaN(threshold) && threshold >= 0) {
+                const filtered = products.filter(product => product.quantityInStock < threshold);
+                alert("Number of products below threshold: " + filtered.length + ", Products: " + filtered.map(product => product.name).join(", "));
+            }
+        }
+
+        const inventoryValue = () => {
+            const value = products.reduce((acc, product) => acc + product.pricePerItem * product.quantityInStock, 0);
+            alert("Inventory Value: " + value);
+        }
+
+        loadProducts();
+    </script>
+</body>
+
+</html>
